@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Aircraft History Timeline</title>
+    <link rel="stylesheet" href="../dist/timeline.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: #f4f7f6;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        #tl {
+            height: 450px;
+            border: 1px solid #ccc;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-default {
+            font-size: 12px;
+        }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="../dist/timeline.min.js"></script>
+
+    <script>
+        var TimelineUrlPrefix = '../dist/src/api/';
+        var AjaxUrlPrefix = '../dist/src/';
+    </script>
+
+    <!-- Localization -->
+    <script src="../src/api/scripts/l10n/en/timeline.js"></script>
+    <script src="../src/api/scripts/l10n/en/labellers.js"></script>
+
+    <script>
+        var tl;
+        function onLoad() {
+            var eventSource = new Timeline.DefaultEventSource();
+
+            // Band 1: Detail (Week)
+            // Band 2: Intermediate (Month)
+            // Band 3: Overview (Year)
+
+            var bandInfos = [
+                Timeline.createBandInfo({
+                    width: "50%",
+                    intervalUnit: Timeline.DateTime.DAY,
+                    intervalPixels: 50,
+                    eventSource: eventSource,
+                    date: "Jan 01 2013 00:00:00 GMT"
+                }),
+                Timeline.createBandInfo({
+                    width: "30%",
+                    intervalUnit: Timeline.DateTime.MONTH,
+                    intervalPixels: 40,
+                    eventSource: eventSource,
+                    date: "Jan 01 2013 00:00:00 GMT"
+                }),
+                Timeline.createBandInfo({
+                    width: "20%",
+                    intervalUnit: Timeline.DateTime.YEAR,
+                    intervalPixels: 40,
+                    eventSource: eventSource,
+                    date: "Jan 01 2013 00:00:00 GMT",
+                    overview: true
+                })
+            ];
+            bandInfos[1].syncWith = 0;
+            bandInfos[1].highlight = true;
+            bandInfos[2].syncWith = 1;
+            bandInfos[2].highlight = true;
+
+            tl = Timeline.create(document.getElementById("tl"), bandInfos, Timeline.HORIZONTAL);
+            tl.loadXML("aircraft.xml", function (xml, url) { eventSource.loadXML(xml, url); });
+        }
+
+        var resizeTimerID = null;
+        function onResize() {
+            if (resizeTimerID == null) {
+                resizeTimerID = window.setTimeout(function () {
+                    resizeTimerID = null;
+                    tl.layout();
+                }, 500);
+            }
+        }
+    </script>
+</head>
+
+<body onload="onLoad();" onresize="onResize();">
+    <h1>Aircraft Lifecycle Timeline (2000 - 2025)</h1>
+    <div id="tl" class="timeline-default"></div>
+    <p style="text-align: center; color: #7f8c8d; margin-top: 10px;">
+        Scroll the top band for daily details, or the bottom band for a 25-year overview.
+    </p>
+</body>
+
+</html>
